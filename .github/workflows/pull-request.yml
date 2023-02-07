@@ -10,7 +10,7 @@ on:
 jobs:
   pull-request:
     name: Pull Request
-    runs-on: [ tester-prod ]
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Cancel Previous Runs
