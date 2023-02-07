@@ -7,7 +7,7 @@
         <artifactId>spring-examples</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>spring-security-basic-authentication-example</artifactId>
+	<artifactId>spring-security-basic-authentication</artifactId>
 	<name>Spring Security - Basic Authentication Example</name>
 	<description>Demo project for Spring Boot user authorization with Basic Authentication with Datasource</description>
     <properties>
