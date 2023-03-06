@@ -11,7 +11,8 @@ jobs:
   pull-request:
     name: Pull Request
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
+    permissions: write-all
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.4.1
@@ -19,7 +20,7 @@ jobs:
           access_token: ${{ github.token }}
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -31,44 +32,46 @@ jobs:
           pull-request--size-medium: 200
           pull-request--size-large: 1000
 
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
+      - name: Set up JDK 19
+        uses: actions/setup-java@v3
         with:
-          java-version: 11
+          distribution: 'temurin'
+          java-version: '19'
+          cache: 'maven'
 
       - name: Set up Maven
-        uses: stCarolas/setup-maven@v4
+        uses: stCarolas/setup-maven@v4.5
         with:
           maven-version: 3.8.2
 
       - name: Cache local Maven repository
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+            maven-
 
       - name: Unit tests
         id: unit-tests
-        run: mvn clean install
-        continue-on-error: true
+        run: mvn -B clean jacoco:prepare-agent verify jacoco:report
 
-      - name: Notify Sonar Scan fail
+      - name: Notify JaCoCo Scan fail
         if: steps.unit-tests.outcome != 'success'
         uses: andrewmusgrave/automatic-pull-request-review@0.0.5
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           event: REQUEST_CHANGES
-          body: 'Sonar Scan is failed'
+          body: 'JaCoCo Scan is failed'
 
-      - name: Notify Sonar scan success
+      - name: Notify JaCoCo scan success
         if: steps.unit-tests.outcome == 'success'
         uses: andrewmusgrave/automatic-pull-request-review@0.0.5
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           event: COMMENT
-          body: 'Sonar Scan is passed'
+          body: 'JaCoCo Scan is passed'
 
       - name: Approve Pull Request
         if: steps.unit-tests.outcome == 'success'

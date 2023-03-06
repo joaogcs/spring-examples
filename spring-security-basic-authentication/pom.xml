@@ -11,13 +11,26 @@
 	<name>Spring Security - Basic Authentication Example</name>
 	<description>Demo project for Spring Boot user authorization with Basic Authentication with Datasource</description>
     <properties>
-        <kotlin.version>1.8.0</kotlin.version>
-        <springdoc-openapi-ui.version>1.6.11</springdoc-openapi-ui.version>
+        <kotlin.version>1.8.10</kotlin.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
         <springdoc-openapi-security.version>1.6.11</springdoc-openapi-security.version>
 
-        <mockito-kotlin.version>4.0.0</mockito-kotlin.version>
-        <mockito-inline.version>4.7.0</mockito-inline.version>
-        <h2.version>1.4.200</h2.version>
+        <!--Tests-->
+        <mockito-kotlin.version>4.1.0</mockito-kotlin.version>
+        <mockito-inline.version>5.1.1</mockito-inline.version>
+        <junit-jupiter.version>5.9.2</junit-jupiter.version>
+
+        <!--Code coverage-->
+        <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
+        <jacoco.exclusions>
+            **/SpringSecurityBasicAuthenticationApplication*,
+            **/dtos/**,
+            **/domains/**,
+            **/models/**,
+            **/enums/*,
+            **/configs/**,
+        </jacoco.exclusions>
+        <jacoco-covered-ratio>0.95</jacoco-covered-ratio>
     </properties>
     <dependencies>
         <dependency>
@@ -33,31 +46,39 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <groupId>uk.co.caeldev</groupId>
+            <artifactId>spring-security-mongo</artifactId>
+            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
 			<artifactId>jackson-module-kotlin</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
-            <version>${springdoc-openapi-ui.version}</version>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-security</artifactId>
             <version>${springdoc-openapi-security.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo.spring30x</artifactId>
+            <version>4.6.1</version>
+            <scope>runtime</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -68,16 +89,6 @@
                     <artifactId>mockito-core</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito.kotlin</groupId>
@@ -91,6 +102,12 @@
             <version>${mockito-inline.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -98,7 +115,7 @@
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>${project.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
@@ -126,7 +143,58 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>${jacoco.exclusions}</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>jacocoArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>jacoco-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>CLASS</element>
+                                    <excludes>
+                                        <!-- COMMON COVERAGE EXCLUSIONS -->
+                                        <exclude>**LeadershiptoolsmanagementApplicationKt
+                                        </exclude>
+                                    </excludes>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${jacoco-covered-ratio}</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-
 </project>

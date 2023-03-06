@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class GetUserUseCase(val userRepositoryPort: UserRepositoryPort) {
-    fun all() = userRepositoryPort.findAll()
-    fun countAll() = userRepositoryPort.getNumberOfUsers()
-    fun byEmail(email: String) = userRepositoryPort.findUserByEmail(email)
+    fun all() = userRepositoryPort.findAll().getOrThrow()
+    fun countAll() = userRepositoryPort.getNumberOfUsers().getOrThrow()
+    fun byEmail(email: String) = userRepositoryPort.findUserByEmail(email).getOrThrow()
 }

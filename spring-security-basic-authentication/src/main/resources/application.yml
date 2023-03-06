@@ -33,21 +33,14 @@ springdoc:
     displayRequestDuration: true
     path: /swagger-ui
     url: /openapi.yml
-    oauth:
-      appName: spring-kotlin-user-auth-sql-datasource
 
 spring:
-  h2:
-    console.enabled: true
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: update
-  datasource:
-    driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:test
-    username: sa
-    password: password
+  data:
+    mongodb:
+      uri: mongodb://localhost/test
+
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 4.0.21

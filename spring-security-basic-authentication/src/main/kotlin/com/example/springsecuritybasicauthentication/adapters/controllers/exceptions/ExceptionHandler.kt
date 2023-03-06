@@ -1,12 +1,12 @@
-package com.example.springsecuritybasicauthentication.controllers.exceptions
+package com.example.springsecuritybasicauthentication.adapters.controllers.exceptions
 
+import com.example.springsecuritybasicauthentication.adapters.controllers.dtos.ErrorResponseDto
 import com.example.springsecuritybasicauthentication.entities.exceptions.NotFoundException
-import com.example.springsecuritybasicauthentication.controllers.dtos.ErrorResponseDto
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import javax.servlet.http.HttpServletRequest
 
 @RestControllerAdvice
 class ExceptionHandler {

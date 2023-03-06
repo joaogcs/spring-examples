@@ -1,4 +1,4 @@
-package com.example.springsecuritybasicauthentication.controllers.dtos
+package com.example.springsecuritybasicauthentication.adapters.controllers.dtos
 
 import com.example.springsecuritybasicauthentication.entities.User
 
